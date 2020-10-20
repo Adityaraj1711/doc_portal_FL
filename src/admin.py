@@ -8,7 +8,7 @@ class GeneralEntryAdmin(admin.ModelAdmin):
     search_fields = ('first_name', 'last_name', 'location__location')
     list_display = ('first_name', 'last_name', 'location', )
     actions = (ExportCsvMixin.export_as_csv, ExportAllCsvMixin.export_all_as_csv, )
-    list_per_page = 1
+    list_per_page = 10
     list_filter = (
         ('date', DateFieldListFilter),
     )
@@ -32,9 +32,22 @@ class ProcedureFormAdmin(admin.ModelAdmin):
     list_display = ('first_name', 'last_name', 'age', 'mobile_number', 'procedure', 'dose_given', 'area_of_treatment',
                     'cost', 'result', 'remark', 'date'
                     )
-    list_per_page = 1
+    list_per_page = 10
+    readonly_fields = ('first_name', 'last_name', 'age', 'mobile_number', 'procedure', 'dose_given', 'area_of_treatment',
+                    'cost', 'result', 'remark', 'date'
+                    )
     list_max_show_all = False
     actions = (ExportCsvMixin.export_as_csv, ExportAllCsvMixin.export_all_as_csv, )
+
+    def get_readonly_fields(self, request, obj=None):
+        read_only_fields = super().get_readonly_fields(request)
+        if not obj:
+            read_only_fields = ()
+            if not request.user.is_superuser:
+                print(type(request.method))
+        if request.user.is_superuser:
+            read_only_fields = ()
+        return read_only_fields
 
     def get_actions(self, request):
         actions = super().get_actions(request)

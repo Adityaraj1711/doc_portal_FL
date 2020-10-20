@@ -39,9 +39,8 @@ class ProcedureForm(models.Model):
     cost = models.CharField(default="", max_length=2000)
     result = models.TextField(default="", max_length=4000)
     remark = models.TextField(default="", max_length=4000, blank=True)
-    SESSION_CHOICE = [("0", "0"), ("1", "1"), ("2", "2"), ("3", "3"), ("4", "4"), ("5", "5"), ("6", "6"), ("7", "7"), ("8", "8"), ("9", "9"), ("10", "10")]
-    no_of_session = models.CharField(default="0", choices=SESSION_CHOICE, max_length=10)
-    settings_dose = models.CharField(default="", max_length=2000, blank=True)
+    no_of_session = models.IntegerField(default=0)
+    settings_dose = models.TextField(default="", max_length=20000, blank=True)
     date = models.DateTimeField(default=datetime.datetime.now)
 
     def __str__(self):
