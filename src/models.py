@@ -1,5 +1,6 @@
 from django.db import models
 import datetime
+from phonenumber_field.modelfields import PhoneNumberField
 
 
 class Location(models.Model):
@@ -32,7 +33,7 @@ class ProcedureForm(models.Model):
     first_name = models.CharField(default="", max_length=100)
     last_name = models.CharField(default="", max_length=100, blank=True)
     age = models.IntegerField()
-    mobile_number = models.IntegerField(max_length=10)
+    mobile_number = PhoneNumberField(help_text="+910123456789 (country code + Mobile number)")
     procedure = models.ForeignKey(Procedure, on_delete=models.PROTECT)
     dose_given = models.CharField(default="", max_length=3000)
     area_of_treatment = models.TextField(default="", max_length=3000)
