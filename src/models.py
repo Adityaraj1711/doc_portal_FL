@@ -32,8 +32,8 @@ class GeneralEntry(models.Model):
 class ProcedureForm(models.Model):
     first_name = models.CharField(default="", max_length=100)
     last_name = models.CharField(default="", max_length=100, blank=True)
-    age = models.IntegerField()
-    mobile_number = PhoneNumberField(help_text="+910123456789 (country code + Mobile number)")
+    age = models.IntegerField(default="", max_length=2)
+    mobile_number = models.CharField(default="", max_length=10)#PhoneNumberField(help_text="+910123456789 (country code + Mobile number)")
     procedure = models.ForeignKey(Procedure, on_delete=models.PROTECT)
     dose_given = models.CharField(default="", max_length=3000)
     area_of_treatment = models.TextField(default="", max_length=3000)
@@ -43,6 +43,9 @@ class ProcedureForm(models.Model):
     no_of_session = models.IntegerField(default=0)
     settings_dose = models.TextField(default="", max_length=20000, blank=True)
     date = models.DateTimeField(default=datetime.datetime.now)
+
+    def get_mobile_number(self):
+        return len(self.mobile_number) == 10
 
     def __str__(self):
         return self.first_name + " " + self.last_name + " age: " + str(self.age) + " procedure: " + self.procedure.procedure + " ,treatment: " + self.area_of_treatment

@@ -4,6 +4,14 @@ from django.contrib.admin import DateFieldListFilter
 from .utils import ExportCsvMixin, ExportAllCsvMixin
 
 
+class DontLog:
+    def log_addition(self, *args):
+        return
+
+    def log_change(self, *args):
+        return
+
+
 class GeneralEntryAdmin(admin.ModelAdmin):
     search_fields = ('first_name', 'last_name', 'location__location')
     list_display = ('first_name', 'last_name', 'location', )
@@ -24,7 +32,7 @@ class GeneralEntryAdmin(admin.ModelAdmin):
         return actions
 
 
-class ProcedureFormAdmin(admin.ModelAdmin):
+class ProcedureFormAdmin(DontLog, admin.ModelAdmin):
     list_filter = (
         ('date', DateFieldListFilter),
     )
@@ -92,7 +100,9 @@ class ProcedureFormAdmin(admin.ModelAdmin):
         return listDisplay
 
 
+admin.site.base_template = 'src/templates/admin/base.html'
 admin.site.login_template = 'src/templates/admin/login.html'
+admin.site.index_template = 'src/templates/admin/index.html'
 admin.site.site_header = "Public Awareness Administration"
 admin.site.site_title = "Public Awareness Portal"
 admin.site.index_title = "Welcome to Public Awareness Portal"
