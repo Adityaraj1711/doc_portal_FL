@@ -19,8 +19,8 @@ class Procedure(models.Model):
 
 class GeneralEntry(models.Model):
     first_name = models.CharField(default="", max_length=100)
-    last_name = models.CharField(default="", max_length=100, blank=True)
-    mobile_number = models.IntegerField(max_length=10)
+    last_name = models.CharField(default="", max_length=100)
+    mobile_number = models.CharField(default="", max_length=10)
     address = models.TextField()
     date = models.DateTimeField(default=datetime.datetime.now)
     location = models.ForeignKey(Location, on_delete=models.PROTECT)
@@ -31,17 +31,16 @@ class GeneralEntry(models.Model):
 
 class ProcedureForm(models.Model):
     first_name = models.CharField(default="", max_length=100)
-    last_name = models.CharField(default="", max_length=100, blank=True)
+    last_name = models.CharField(default="", max_length=100)
     age = models.IntegerField(default="", max_length=2)
     mobile_number = models.CharField(default="", max_length=10)#PhoneNumberField(help_text="+910123456789 (country code + Mobile number)")
-    procedure = models.ForeignKey(Procedure, on_delete=models.PROTECT)
-    dose_given = models.CharField(default="", max_length=3000)
-    area_of_treatment = models.TextField(default="", max_length=3000)
-    cost = models.CharField(default="", max_length=2000)
-    result = models.TextField(default="", max_length=4000)
+    procedure = models.ForeignKey(Procedure, on_delete=models.PROTECT, blank=True)
+    area_of_treatment = models.TextField(default="", max_length=3000, blank=True)
+    cost = models.CharField(default="", max_length=2000, blank=True)
+    result = models.TextField(default="", max_length=4000, blank=True)
     remark = models.TextField(default="", max_length=4000, blank=True)
     no_of_session = models.IntegerField(default=0)
-    settings_dose = models.TextField(default="", max_length=20000, blank=True)
+    settings_dose = models.TextField(default="", max_length=20000)
     date = models.DateTimeField(default=datetime.datetime.now)
 
     def get_mobile_number(self):
