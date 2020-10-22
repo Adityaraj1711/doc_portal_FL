@@ -5,6 +5,7 @@ from .utils import ExportCsvMixin, ExportAllCsvMixin
 
 
 class GeneralEntryAdmin(admin.ModelAdmin):
+    change_form_template = 'src/templates/admin/change_form.html'
     search_fields = ('first_name', 'last_name', 'location__location')
     list_display = ('first_name', 'last_name', 'location', )
     actions = (ExportCsvMixin.export_as_csv, ExportAllCsvMixin.export_all_as_csv, )
