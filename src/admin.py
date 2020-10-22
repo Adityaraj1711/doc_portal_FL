@@ -8,7 +8,7 @@ class GeneralEntryAdmin(admin.ModelAdmin):
     search_fields = ('first_name', 'last_name', 'location__location')
     list_display = ('first_name', 'last_name', 'location', )
     actions = (ExportCsvMixin.export_as_csv, ExportAllCsvMixin.export_all_as_csv, )
-    list_per_page = 10
+    list_per_page = 1
     list_filter = (
         ('date', DateFieldListFilter),
     )
@@ -28,16 +28,33 @@ class ProcedureFormAdmin(admin.ModelAdmin):
     list_filter = (
         ('date', DateFieldListFilter),
     )
-    search_fields = ('first_name', 'last_name', 'procedure__procedure', 'area_of_treatment')
+    search_fields = ('first_name', 'last_name', 'procedure__procedure', 'area_of_treatment', 'mobile_number')
     list_display = ('first_name', 'last_name', 'age', 'mobile_number', 'procedure', 'dose_given', 'area_of_treatment',
                     'cost', 'result', 'remark', 'date'
                     )
-    list_per_page = 10
+    list_per_page = 1
     readonly_fields = ('first_name', 'last_name', 'age', 'mobile_number', 'procedure', 'dose_given', 'area_of_treatment',
                     'cost', 'result', 'remark', 'date'
                     )
     list_max_show_all = False
     actions = (ExportCsvMixin.export_as_csv, ExportAllCsvMixin.export_all_as_csv, )
+
+    # def get_search_results(self, request, queryset, search_term):
+    #     search_result = super().get_search_results(request, queryset, search_term)
+    #     if request.user.is_superuser:
+    #         self.list_display = ('first_name', 'last_name', 'age', 'mobile_number', 'procedure', 'dose_given', 'area_of_treatment',
+    #                         'cost', 'result', 'remark', 'date'
+    #                         )
+    #     else:
+    #         if not request.user.is_superuser:
+    #             self.list_display = ()
+    #     if len(search_term) > 0:
+    #         self.list_display = (
+    #             'first_name', 'last_name', 'age', 'mobile_number', 'procedure', 'dose_given', 'area_of_treatment',
+    #             'cost', 'result', 'remark', 'date'
+    #         )
+    #         self.list_per_page = 10
+    #     return search_result
 
     def get_readonly_fields(self, request, obj=None):
         read_only_fields = super().get_readonly_fields(request)
@@ -65,6 +82,14 @@ class ProcedureFormAdmin(admin.ModelAdmin):
         if 'remark' in form.base_fields:
             form.base_fields['remark'].widget.attrs['placeholder'] = "e.g.: Burnt/Pain was not satisfied.."
         return form
+
+    def get_list_display(self, request):
+        listDisplay = super().get_list_display(request)
+        if not request.user.is_superuser:
+            self.list_per_page = 1
+        else:
+            self.list_per_page = 10
+        return listDisplay
 
 
 admin.site.login_template = 'src/templates/admin/login.html'
