@@ -5,6 +5,7 @@ from .utils import ExportCsvMixin, ExportAllCsvMixin
 
 
 class GeneralEntryAdmin(admin.ModelAdmin):
+    show_full_result_count = False
     change_form_template = 'src/templates/admin/change_form.html'
     search_fields = ('first_name', 'last_name', 'location__location')
     list_display = ('first_name', 'last_name', 'location', )
