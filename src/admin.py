@@ -67,6 +67,7 @@ class ProcedureFormAdmin(admin.ModelAdmin):
     # list_filter = (
     #     ('date', DateFieldListFilter),
     # )
+    show_full_result_count = False
     change_form_template = 'src/templates/admin/change_form.html'
     search_form_template = 'src/templates/admin/search_form.html'
     search_fields = ('first_name', 'last_name')
