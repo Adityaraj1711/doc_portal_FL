@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html>
+{% load static %}
 <head>
-	<title>Public-Awareness</title>
+	<title>DHL Skin Centre</title>
 	<style>
 		html, body{
           height: 100%;
         }
         body {
-			background: url('https://source.unsplash.com/twukN12EN7c/1920x1080') no-repeat center center fixed;
+			background: url("{% static 'home.jpg' %}") no-repeat center center fixed;
 			background-position: center center;
 			background-repeat:  no-repeat;
 			background-attachment: fixed;
@@ -67,13 +68,14 @@
 	</style>
 </head>
 <body>
+<img src="{% static 'logo.png' %}" width="250px" alt="DHL center"/>
 <a href = '/admin'><button class="button">Login</button>
 </a>
 
 <div class="wrapper">
   <div class="message">
-    <h1>Public Awareness</h1>
-    <p>Welcome to public awareness project.</p>
+    <h1>DHL Skin Centre</h1>
+    <p>Welcome to DHL Skin Centre.</p>
   </div>
 </div>
 
