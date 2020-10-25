@@ -128,10 +128,9 @@ admin.site.base_template = 'src/templates/admin/base.html'
 admin.site.login_template = 'src/templates/admin/login.html'
 admin.site.index_template = 'src/templates/admin/index.html'
 admin.site.base_site_template = 'src/templates/admin/base_site.html'
-# admin.site.search_form_template = 'src/templates/admin/search_form.html'
-admin.site.site_header = "DHL Skin Centre"
-admin.site.site_title = "DHL Skin Centre"
-admin.site.index_title = "Welcome to DHL Skin Centre Portal"
+admin.site.site_header = "My Portal"
+admin.site.site_title = "My Portal"
+admin.site.index_title = "Welcome to My Portal"
 admin.site.register(Location)
 admin.site.register(Procedure)
 admin.site.register(GeneralEntry, GeneralEntryAdmin)
