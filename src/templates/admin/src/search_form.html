@@ -5,7 +5,7 @@
 <label for="searchbar"><img src="{% static "admin/img/search.svg" %}" alt="ss" /></label>
 
 <input type="text" style="width: 150px;" name="{{ search_var }}" value="{{ cl.query }}" id="searchbar" autofocus />
-<input type="submit"  value="{% trans 'D' %}" />
+<input type="submit"  value="{% trans 'Search' %}" />
 {% if show_result_count %}
     <span class="small quiet">{% blocktrans count counter=cl.result_count %}{{ counter }} result{% plural %}{{ counter }} results{% endblocktrans %}</span>
 {% endif %}
