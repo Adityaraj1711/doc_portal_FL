@@ -44,6 +44,10 @@ INSTALLED_APPS = [
 ]
 DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800
 FILE_UPLOAD_MAX_MEMORY_SIZE = 52428800
+AUTH_USER_MODEL = 'src.CustomUser'
+# IMPORT_EXPORT_CHUNK_SIZE = 2000
+# IMPORT_EXPORT_USE_TRANSACTIONS = True
+# IMPORT_EXPORT_SKIP_ADMIN_LOG = True
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

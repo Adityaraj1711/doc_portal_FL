@@ -1,11 +1,26 @@
 from django.contrib import admin
 from .models import *
 from django.contrib.admin import DateFieldListFilter
-from .utils import ExportCsvMixin, ExportAllCsvMixin
+from .utils import ExportCsvMixin, ExportAllCsvMixin, BulkSaveMixin
 from import_export import resources
-from src.models import AxisCompleteDetail, MahindraCompleteDetail
+from src.models import AxisCompleteDetail, CompleteDetail
 from import_export.fields import Field
 from import_export.admin import ImportExportModelAdmin
+from import_export.instance_loaders import CachedInstanceLoader
+from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+
+
+class CustomUserAdmin(UserAdmin):
+    add_form = UserCreationForm
+    form = UserChangeForm
+    model = CustomUser
+    list_display = ['email', 'username', 'first_name', 'last_name', 'aadhar', 'date_of_birth']
+    add_fieldsets = UserAdmin.add_fieldsets + (
+        (None, {'fields': ('email', 'first_name', 'last_name', 'aadhar', 'date_of_birth')}),
+    )
+    fieldsets = UserAdmin.fieldsets
 
 
 class AxisCompleteDetailResource(resources.ModelResource):
@@ -49,7 +64,9 @@ class AxisCompleteDetailAdmin(ImportExportModelAdmin):
 
     def get_search_fields(self, request):
         if request.user.is_superuser:
-            self.search_fields = ('chasis_number', 'state', 'full_name', 'manufacturer', 'address', 'mobile_numer', 'registration', 'engine_number', 'acm_name')
+            self.search_fields = ('chasis_number', 'state', 'full_name', 'manufacturer', 'address', 'mobile_numer',
+                                  'registration', 'engine_number', 'acm_name'
+                                  )
         return self.search_fields
 
     # def get_search_results(self, request, queryset, search_term):
@@ -95,7 +112,7 @@ class AxisCompleteDetailAdmin(ImportExportModelAdmin):
         return listDisplay
 
 
-class MahindraCompleteDetailResource(resources.ModelResource):
+class CompleteDetailResource(resources.ModelResource):
     hpa_no = Field(attribute='hpa_no', column_name='HPA_NO')
     name = Field(attribute='name', column_name='NAME')
     brndes = Field(attribute='brndes', column_name='BRNDES')
@@ -142,35 +159,47 @@ class MahindraCompleteDetailResource(resources.ModelResource):
     cust_fatherName = Field(attribute='cust_fatherName', column_name='cust_fatherName')
     priority_tag = Field(attribute='priority_tag', column_name='Priority Tag')
     october_handling_vertical_name = Field(attribute='october_handling_vertical_name', column_name='October Handling Vertical Name')
+    acct_no = Field(attribute='acct_no', column_name='ACCT NO')
+    pdt1 = Field(attribute='pdt1', column_name='PDT1')
+    emi_amount = Field(attribute='emi_amount', column_name='EMI amount')
+    pos = Field(attribute='pos', column_name='POS(CR)')
+
 
     class Meta:
-        model = MahindraCompleteDetail
+        model = CompleteDetail
+        use_bulk = True
+        # batch_size = 1000
+        # force_init_instance = True
+        # skip_diff = True
+        # chunk_size = 2000
+        skip_unchanged = True
+        instance_loader_class = CachedInstanceLoader
 
 
-class MahindraCompleteDetailAdmin(ImportExportModelAdmin):
-    resource_class = MahindraCompleteDetailResource
+class CompleteDetailAdmin(ImportExportModelAdmin):
+    resource_class = CompleteDetailResource
+    skip_admin_log = True  #
+    change_list_template = 'src/templates/admin/change_list_import_export.html'
+    # use_bulk = True
+    batch_size = 2000
+    chunk_size = 2000
     show_full_result_count = False
     change_form_template = 'src/templates/admin/change_form.html'
     search_fields = ('hpa_no', 'name', 'emp_name', 'chsno', 'engno', 'regno')
     list_display = (
-        'hpa_no', 'name', 'emp_name', 'chsno', 'engno', 'regno', 'brndes', 'assdes', 'place', 'mobile_no', 'cust_fatherName'
+        'hpa_no', 'name', 'chsno', 'engno', 'regno', 'brndes', 'rgndes', 'outstand'
     )
     list_per_page = 50
     readonly_fields = ('state', )
     list_max_show_all = False
+    exclude = ()
     actions = (ExportCsvMixin.export_as_csv, ExportAllCsvMixin.export_all_as_csv, )
 
     def get_search_fields(self, request):
         if request.user.is_superuser:
-            self.search_fields = ('hpa_no', 'name', 'emp_name', 'chsno', 'engno', 'regno', 'brndes', 'assdes', 'place', 'mobile_no', 'cust_fatherName')
+            self.search_fields = ('hpa_no', 'name', 'emp_name', 'chsno', 'engno', 'regno', 'brndes', 'assdes', 'place',
+                                  'mobile_no', 'outstand', 'rgndes', 'cust_fatherName')
         return self.search_fields
-
-    # def get_search_results(self, request, queryset, search_term):
-    #     search_result = super().get_search_results(request, queryset, search_term)
-    #     if not request.user.is_superuser:
-    #         if len(search_term) != 7:
-    #             search_result = (ProcedureForm.objects.none(), False)
-    #     return search_result
 
     def get_readonly_fields(self, request, obj=None):
         read_only_fields = super().get_readonly_fields(request)
@@ -182,25 +211,34 @@ class MahindraCompleteDetailAdmin(ImportExportModelAdmin):
             read_only_fields = ()
         return read_only_fields
 
-    def get_actions(self, request):
-        actions = super().get_actions(request)
-        if not request.user.is_superuser:
-            if 'export_as_csv' in actions:
-                del actions['export_as_csv']
-            if 'export_all_as_csv' in actions:
-                del actions['export_all_as_csv']
-        return actions
+    # def get_form(self, request, obj=None, **kwargs):
+    #     form = super().get_form(request, obj, **kwargs)
+    #     if not request.user.is_superuser:
+    #         x = list(form.base_fields.keys())
+    #         print(len(x))
+    #         # print(form.base_fields[x[0]])
+    #     return form
 
-    def get_form(self, request, obj=None, **kwargs):
-        form = super().get_form(request, obj, **kwargs)
-        if 'result' in form.base_fields:
-            form.base_fields['result'].widget.attrs['placeholder'] = "Did the patient get the results, etc.."
-        if 'remark' in form.base_fields:
-            form.base_fields['remark'].widget.attrs['placeholder'] = "e.g.: Burnt/Pain was not satisfied.."
-        return form
+    def get_exclude(self, request, obj=None):
+        if not request.user.is_superuser:
+            self.exclude = (
+                'emp_name', 'age', 'bill1', 'soh', 'assdes', 'status', 'branch',
+                'place', 'postoffice', 'road_name', 'landmark', 'city_village', 'state_code', 'district_code',
+                'taluk', 'website', 'pincode', 'office_phone_no', 'resi_telephone', 'mobile_no', 'pager_no', 'gu_name', 'gu_place',
+                'gu_postoffice', 'gu_road_name', 'gu_landmark', 'gu_city_village', 'gu_state_des', 'gu_district_des',
+                'gu_taluk', 'gu_pincode', 'gu_office_phone_no', 'gu_resi_telephone', 'gu_mobile_no', 'cust_fatherName',
+                'priority_tag', 'october_handling_vertical_name', 'acct_no', 'pdt1', 'emi_amount', 'pos'
+            )
+        else:
+            self.exclude = ()
+        return self.exclude
 
     def get_list_display(self, request):
         listDisplay = super().get_list_display(request)
+        if request.user.is_superuser:
+            print('superuser', str(request.user))
+            self.list_display = ('hpa_no', 'name', 'emp_name', 'chsno', 'engno', 'regno', 'brndes', 'assdes', 'mobile_no',
+                                 'place', 'mobile_no', 'outstand', 'rgndes', 'cust_fatherName')
         if not request.user.is_superuser:
             self.list_per_page = 10
         else:
@@ -208,137 +246,13 @@ class MahindraCompleteDetailAdmin(ImportExportModelAdmin):
         return listDisplay
 
 
-# class GeneralEntryAdmin(admin.ModelAdmin):
-#     show_full_result_count = False
-#     change_form_template = 'src/templates/admin/change_form.html'
-#     search_fields = ('first_name', 'last_name', 'location__location')
-#     list_display = ('first_name', 'last_name', 'location', )
-#     actions = (ExportCsvMixin.export_as_csv, ExportAllCsvMixin.export_all_as_csv, )
-#     list_per_page = 50
-#     list_filter = (
-#         ('date', DateFieldListFilter),
-#     )
-#     list_max_show_all = False
-#
-#     def get_actions(self, request):
-#         actions = super().get_actions(request)
-#         if not request.user.is_superuser:
-#             if 'export_as_csv' in actions:
-#                 del actions['export_as_csv']
-#             if 'export_all_as_csv' in actions:
-#                 del actions['export_all_as_csv']
-#         return actions
-#
-#     def get_search_results(self, request, queryset, search_term):
-#         search_result = super().get_search_results(request, queryset, search_term)
-#         if not request.user.is_superuser:
-#             if len(search_term) != 7:
-#                 search_result = (ProcedureForm.objects.none(), False)
-#         return search_result
-#
-#     def get_readonly_fields(self, request, obj=None):
-#         read_only_fields = super().get_readonly_fields(request)
-#         if not obj:
-#             read_only_fields = ()
-#             if not request.user.is_superuser:
-#                 print(type(request.method))
-#         if request.user.is_superuser:
-#             read_only_fields = ()
-#         return read_only_fields
-#
-#     def get_actions(self, request):
-#         actions = super().get_actions(request)
-#         if not request.user.is_superuser:
-#             if 'export_as_csv' in actions:
-#                 del actions['export_as_csv']
-#             if 'export_all_as_csv' in actions:
-#                 del actions['export_all_as_csv']
-#         return actions
-#
-#     def get_form(self, request, obj=None, **kwargs):
-#         form = super().get_form(request, obj, **kwargs)
-#         return form
-#
-#     def get_list_display(self, request):
-#         listDisplay = super().get_list_display(request)
-#         if not request.user.is_superuser:
-#             self.list_per_page = 10
-#         else:
-#             self.list_per_page = 50
-#         return listDisplay
-
-
-# class ProcedureFormAdmin(admin.ModelAdmin):
-#     # list_filter = (
-#     #     ('date', DateFieldListFilter),
-#     # )
-#     show_full_result_count = False
-#     change_form_template = 'src/templates/admin/change_form.html'
-#     search_fields = ('first_name', 'last_name')
-#     list_display = ('first_name', 'last_name', 'age', 'mobile_number', 'procedure', 'area_of_treatment',
-#                     'cost', 'result', 'remark', 'date'
-#                     )
-#     list_per_page = 50
-#     readonly_fields = ('first_name', 'last_name', 'age', 'mobile_number', 'procedure', 'area_of_treatment',
-#                     'cost', 'result', 'remark', 'date'
-#                     )
-#     list_max_show_all = False
-#     actions = (ExportCsvMixin.export_as_csv, ExportAllCsvMixin.export_all_as_csv, )
-#
-#     def get_search_results(self, request, queryset, search_term):
-#         search_result = super().get_search_results(request, queryset, search_term)
-#         if not request.user.is_superuser:
-#             if len(search_term) != 7:
-#                 search_result = (ProcedureForm.objects.none(), False)
-#         return search_result
-#
-#     def get_readonly_fields(self, request, obj=None):
-#         read_only_fields = super().get_readonly_fields(request)
-#         if not obj:
-#             read_only_fields = ()
-#             if not request.user.is_superuser:
-#                 print(type(request.method))
-#         if request.user.is_superuser:
-#             read_only_fields = ()
-#         return read_only_fields
-#
-#     def get_actions(self, request):
-#         actions = super().get_actions(request)
-#         if not request.user.is_superuser:
-#             if 'export_as_csv' in actions:
-#                 del actions['export_as_csv']
-#             if 'export_all_as_csv' in actions:
-#                 del actions['export_all_as_csv']
-#         return actions
-#
-#     def get_form(self, request, obj=None, **kwargs):
-#         form = super().get_form(request, obj, **kwargs)
-#         if 'result' in form.base_fields:
-#             form.base_fields['result'].widget.attrs['placeholder'] = "Did the patient get the results, etc.."
-#         if 'remark' in form.base_fields:
-#             form.base_fields['remark'].widget.attrs['placeholder'] = "e.g.: Burnt/Pain was not satisfied.."
-#         return form
-#
-#     def get_list_display(self, request):
-#         listDisplay = super().get_list_display(request)
-#         if not request.user.is_superuser:
-#             self.list_per_page = 10
-#         else:
-#             self.list_per_page = 50
-#         return listDisplay
-
-
 admin.site.base_template = 'src/templates/admin/base.html'
 admin.site.login_template = 'src/templates/admin/login.html'
 admin.site.index_template = 'src/templates/admin/index.html'
 admin.site.base_site_template = 'src/templates/admin/base_site.html'
-admin.site.site_header = "Radhe Krishna Repo Agency"
-admin.site.site_title = "Radhe Krishna Repo Agency"
-admin.site.index_title = "Welcome to Radhe Krishna Repo Agency"
-# admin.site.register(Location)
-# admin.site.register(Procedure)
-# admin.site.register(GeneralEntry, GeneralEntryAdmin)
-# admin.site.register(ProcedureForm, ProcedureFormAdmin)
-
+admin.site.site_header = "Radha Krishna Repo Agency"
+admin.site.site_title = "Radha Krishna Repo Agency"
+admin.site.index_title = "Welcome to Radha Krishna Repo Agency"
+admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(AxisCompleteDetail, AxisCompleteDetailAdmin)
-admin.site.register(MahindraCompleteDetail, MahindraCompleteDetailAdmin)
+admin.site.register(CompleteDetail, CompleteDetailAdmin)

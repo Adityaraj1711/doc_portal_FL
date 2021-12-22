@@ -1,86 +1,17 @@
-from django.db import models
-import datetime
-from phonenumber_field.modelfields import PhoneNumberField
+import uuid
+from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.models import PermissionsMixin, UserManager, AbstractUser
+from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.db import models, IntegrityError
+from django.utils import timezone
 
 
-# class Location(models.Model):
-#     location = models.CharField(default="", max_length=30, unique=True)
-#
-#     def __str__(self):
-#         return self.location
-#
-#
-# class Procedure(models.Model):
-#     procedure = models.CharField(default="", max_length=30, unique=True)
-#
-#     def __str__(self):
-#         return self.procedure
-#
-#
-# class GeneralEntry(models.Model):
-#     first_name = models.CharField(default="", max_length=100)
-#     last_name = models.CharField(default="", max_length=100)
-#     mobile_number = models.CharField(default="", max_length=10)
-#     address = models.TextField()
-#     date = models.DateTimeField(default=datetime.datetime.now)
-#     location = models.ForeignKey(Location, on_delete=models.PROTECT)
-#
-#     class Meta:
-#         verbose_name = 'General Entry'
-#         verbose_name_plural = 'General Entry'
-#
-#     def __str__(self):
-#         return self.first_name + " " + self.last_name + " Location: " + self.location.location
-#
-
-# class ProcedureForm(models.Model):
-#     first_name = models.CharField(default="", max_length=100)
-#     last_name = models.CharField(default="", max_length=100)
-#     age = models.IntegerField(default="", max_length=2)
-#     mobile_number = models.CharField(default="", max_length=10)
-#     procedure = models.ForeignKey(Procedure, on_delete=models.PROTECT, blank=True)
-#     area_of_treatment = models.TextField(default="", max_length=3000, blank=True)
-#     cost = models.CharField(default="", max_length=2000, blank=True)
-#     result = models.TextField(default="", max_length=4000, blank=True)
-#     remark = models.TextField(default="", max_length=4000, blank=True)
-#     no_of_session = models.IntegerField(default=0)
-#     settings_dose = models.TextField(default="", max_length=20000)
-#     date = models.DateTimeField(default=datetime.datetime.now)
-#
-#     class Meta:
-#         verbose_name = 'Procedure Form'
-#         verbose_name_plural = 'Procedure Forms'
-#
-#     def get_mobile_number(self):
-#         return len(self.mobile_number) == 10
-#
-#     def __str__(self):
-#         return self.first_name + " " + self.last_name + " age: " + str(self.age) + " procedure: " + self.procedure.procedure + " ,treatment: " + self.area_of_treatment
-
-
-class AxisCompleteDetail(models.Model):
-    state = models.CharField(default="", max_length=200, blank=True)
-    final_city = models.CharField(default="", max_length=200, blank=True)
-    account_ref = models.CharField(default="", max_length=200, blank=True)
-    full_name = models.CharField(default="", max_length=200, blank=True)
-    registration = models.CharField(default="", max_length=200, blank=True)
-    manufacturer = models.CharField(default="", max_length=200, blank=True)
-    chasis_number = models.CharField(default="", max_length=2000, blank=True)
-    pos = models.FloatField(default=0, blank=True)
-    bucket = models.CharField(default="", max_length=200, blank=True)
-    address = models.CharField(default="", max_length=2000, blank=True)
-    mobile_numer = models.CharField(default="", max_length=12, blank=True)
-    emi_amount = models.FloatField(default=0, blank=True)
-    final_emi_amount = models.FloatField(default=0, blank=True)
-    emi_charges = models.FloatField(default=0, blank=True)
-    total_overdue = models.FloatField(default=0, blank=True)
-    total_od_charges = models.FloatField(default=0, blank=True)
-    engine_number = models.CharField(default="", max_length=500, blank=True)
-    cm_name = models.CharField(default="", max_length=200, blank=True)
-    acm_name = models.CharField(default="", max_length=200, blank=True)
+class CustomUser(AbstractUser):
+    date_of_birth = models.DateField(verbose_name="Date of birth", blank=True, null=True)
+    aadhar = models.CharField(verbose_name="aadhar", max_length=1024, blank=True, null=True)
 
     def __str__(self):
-        return self.manufacturer + ", reg: " + self.registration + ", name: " + self.full_name
+        return f"{self.first_name} {self.last_name}"
 
 
 class AxisCompleteDetail(models.Model):
@@ -108,7 +39,7 @@ class AxisCompleteDetail(models.Model):
         return self.manufacturer + ", reg: " + self.registration + ", name: " + self.full_name
 
 
-class MahindraCompleteDetail(models.Model):
+class CompleteDetail(models.Model):
     hpa_no = models.CharField(default="", max_length=200, blank=True, null=True)
     name = models.CharField(default="", max_length=200, blank=True, null=True)
     brndes = models.CharField(default="", max_length=200, blank=True, null=True)
@@ -155,6 +86,10 @@ class MahindraCompleteDetail(models.Model):
     cust_fatherName = models.CharField(default="", max_length=200, blank=True, null=True)
     priority_tag = models.CharField(default="", max_length=200, blank=True, null=True)
     october_handling_vertical_name = models.CharField(default="", max_length=200, blank=True, null=True)
+    acct_no = models.CharField(default="", max_length=200, blank=True, null=True)
+    pdt1 = models.CharField(default="", max_length=200, blank=True, null=True)
+    emi_amount = models.CharField(default="", max_length=200, blank=True, null=True)
+    pos = models.CharField(default="", max_length=200, blank=True, null=True)
 
     def __str__(self):
         return self.name
