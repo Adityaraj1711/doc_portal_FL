@@ -16,9 +16,6 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.conf.urls import include, url
-# from src.admin import site as adminSite
-# admin.site = adminSite
-# admin.autodiscover()
 
 urlpatterns = [
     path('admin/', admin.site.urls),

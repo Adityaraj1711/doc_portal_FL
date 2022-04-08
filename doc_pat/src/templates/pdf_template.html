@@ -1,5 +1,21 @@
 <head>
 <style>
+	#table, #prescription {
+		  font-size: 13px;
+		  font-family:"Calibri, sans-serif";
+	}
+
+	#header_content1 {
+		font-size: 15px;
+	}
+	#note {
+		font-size: 11px;
+	}
+	hr.new2 {
+        opacity: 20%;
+        border-top: 1px dashed black;
+    }
+
     @page {
         size: a4 portrait;
         @frame header_frame {           /* Static Frame */
@@ -18,8 +34,18 @@
 </head>
 
 <body>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+
     <!-- Content for Static Frame 'header_frame' -->
-    <div id="header_content">
+    <div id="header_content1">
     	<h3>{{sal}} {{name}}</h3>
     </div>
 
@@ -29,31 +55,32 @@
     </div>
 
     <!-- HTML Content -->
-    <table>
+    <table id="table">
     		<tr>
-    			<td>Age: {{age}}</td>
-    			<td>Gender: {{gender}}</td>
+    			<td>Age: {{age|default_if_none:"--"}}</td>
+    			<td>Gender: {{gender|default_if_none:"--"}}</td>
     		</tr>
     		<tr>
-    			<td>Address: {{address}}, {{city}}</td>
-    			<td>Contact: {{contact}}</td>
+    			<td>Address: {{address|default_if_none:"--"}}, {{city|default_if_none:"--"}}</td>
+    			<td>Contact: {{contact|default_if_none:"--"}}</td>
     		</tr>
     		<tr>
-    			<td>Referred_by: {{referred_by}}</td>
-    			<td>{{payment_mode}}</td>
+    			<td>Referred by: {{referred_by|default_if_none:"--"}}</td>
+    			<td>{{payment_mode|default_if_none:"--"}}</td>
     		</tr>
 			<tr>
-    			<td>Email: {{email_id}}</td>
-    			<td>Diagnosis: {{diagnosis}}</td>
+    			<td>Email: {{email_id|default_if_none:"--"}}</td>
+    			<td>Diagnosis: {{diagnosis|default_if_none:"--"}}</td>
     		</tr>
     </table>
 
     <hr>
-	<h4>
-		Prescription: <br/>
+	<div id="prescription">
+		<h4>Prescription: </h4>
 		{{prescription | safe}}
-	</h4>
-	<i>
+	</div>
+	<hr>
+	<i id="note">
 		Please take the following medicines for {{days}} days and follow up after {{days}} days on {{follow_up}} .
 	</i>
 	</br>
@@ -61,10 +88,10 @@
 		Previous Prescription Details: <br>
 		{{previous_prescription_data | safe}}
 	</b>
+    <hr class="new2">
 
-    <hr>
-	{{procedure}} <br/>
-	{{comorbidities}}
+	{{procedure|default_if_none:"--"}} <br/>
+	{{comorbidities|default_if_none:"--"}}
 	<br/>
 	<br/>
 	<br/>
